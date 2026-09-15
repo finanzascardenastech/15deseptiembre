@@ -3,32 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Primera Página Web</title>
+    <title>Pase VIP - Noche Mexicana</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        :root {
+            --verde: #006847;
+            --blanco: #ffffff;
+            --rojo: #ce1126;
+            --dorado: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            background: #0a0a0c;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
         }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        /* Fondo animado */
+        .bg-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0,104,71,0.3) 0%, rgba(206,17,38,0.3) 50%, rgba(0,0,0,0) 70%);
+            filter: blur(60px);
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0.8; }
+        }
+
+        /* Tarjeta VIP 3D */
+        .ticket-container {
+            position: relative;
+            width: 350px;
+            background: linear-gradient(135deg, #141419 0%, #08080a 100%);
+            border-radius: 20px;
+            padding: 2px; /* Para el borde degradado */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255, 215, 0, 0.2);
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .ticket-container::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--verde), var(--blanco), var(--rojo), var(--dorado));
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        .ticket-body {
+            background: #111116;
+            border-radius: 18px;
+            padding: 25px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        h1 { color: #2c3e50; }
+
+        /* Detalle VIP Neón */
+        .badge-vip {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--dorado), #fff8b3, var(--dorado));
+            color: #000;
+            font-weight: 900;
+            font-size: 0.85rem;
+            padding: 6px 16px;
+            border-radius: 50px;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            margin-bottom: 15px;
+            transform: translateZ(30px);
+        }
+
+        .title {
+            color: var(--blanco);
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transform: translateZ(25px);
+        }
+
+        .subtitle {
+            background: linear-gradient(90deg, var(--verde), #ffffff, var(--rojo));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            transform: translateZ(20px);
+        }
+
+        /* Fecha */
+        .date-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            transform: translateZ(15px);
+        }
+
+        .date-box .date {
+            color: var(--dorado);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .date-box .location {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Código QR / Botón interactivo */
+        .qr-section {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            transform: translateZ(35px);
+            transition: transform 0.3s ease;
+        }
+
+        .qr-section img {
+            width: 130px;
+            height: 130px;
+            display: block;
+        }
+
+        .instructions {
+            color: #888;
+            font-size: 0.75rem;
+            transform: translateZ(10px);
+        }
+
+        /* Brillo holográfico al pasar el mouse */
+        .glare {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+            border-radius: 18px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>¡Hola, mundo!</h1>
-        <p>Mi sitio web ya está en vivo desde GitHub Pages.</p>
+
+    <div class="bg-glow"></div>
+
+    <div class="ticket-container" id="ticket">
+        <div class="ticket-body">
+            <div class="glare"></div>
+            <div class="badge-vip">ACCESO VIP</div>
+            <h1 class="title">Gran Noche</h1>
+            <div class="subtitle">🇲🇽 ¡VIVA MÉXICO! 🇲🇽</div>
+            
+            <div class="date-box">
+                <div class="date">15 DE SEPTIEMBRE</div>
+                <div class="location">Acceso Preferencial • Zonas VIP</div>
+            </div>
+
+            <div class="qr-section" id="qrBtn">
+                <!-- Generador de QR dinámico -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VIP-15-SEPT-ACCESO-VALIDO" alt="Código QR VIP">
+            </div>
+
+            <p class="instructions">Haz clic en la tarjeta o QR para celebrar 🎉</p>
+        </div>
     </div>
+
+    <script>
+        const ticket = document.getElementById('ticket');
+
+        // Efecto 3D Parallax al mover el mouse
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 15;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 15;
+            ticket.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        // Restablecer posición cuando el mouse sale
+        document.addEventListener('mouseleave', () => {
+            ticket.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+
+        // Efecto de Confeti Tricolor al hacer clic
+        ticket.addEventListener('click', () => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#006847', '#ffffff', '#ce1126', '#ffd700']
+            });
+        });
+
+        // Lanza confeti automáticamente al cargar la página
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#006847', '#ffffff', '#ce1126', '#ffd700']
+                });
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#006847', '#ffffff', '#ce1126', '#ffd700']
+                });
+            }, 500);
+        });
+    </script>
 </body>
 </html>
